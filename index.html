@@ -22,7 +22,6 @@
         .task-card { background: var(--card-bg); border: 2px solid var(--border); border-radius: 16px; padding: 25px; cursor: pointer; text-align: center; transition: 0.2s; }
         .task-card:hover { border-color: var(--accent); }
         
-        /* Особый стиль для кнопки глобальной нарешки */
         .task-card.global-mix { border-color: var(--accent); background: linear-gradient(145deg, var(--card-bg), #1e2433); grid-column: 1 / -1; }
         .task-card.global-mix h3 { font-size: 22px; margin-bottom: 5px; }
 
@@ -32,9 +31,15 @@
         .option-btn { background: transparent; border: 2px solid var(--border); color: var(--text-main); padding: 20px; border-radius: 12px; font-size: 18px; cursor: pointer; width: 100%; margin-bottom: 15px; }
         .option-btn:active { background: var(--accent); color: #fff; }
         .btn-next { background: var(--accent); color: #fff; border: none; padding: 15px; width: 100%; border-radius: 12px; font-weight: bold; margin-top: 20px; cursor: pointer; }
-        .btn-reset { background: #444; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; }
-        .btn-danger { background: #8b0000; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; }
-        .stats { font-size: 14px; color: var(--accent); font-weight: bold; }
+        
+        .btn-reset { background: #333; color: #ccc; border: 1px solid var(--border); padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 11px; margin-left: 6px; display: inline-block; vertical-align: middle; }
+        .btn-reset:hover { background: #444; color: #fff; }
+        
+        /* Стили для маленькой центрированной кнопки удаления */
+        .btn-danger { background: #8b0000; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; margin: 30px auto 0 auto; display: none; transition: 0.2s; text-align: center; }
+        .btn-danger:active { background: #ff0000; }
+        
+        .stats { font-size: 14px; color: var(--accent); font-weight: bold; display: flex; align-items: center; }
 
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-size: 14px; color: var(--accent); }
@@ -46,10 +51,10 @@
 
     <div class="container" id="main-menu">
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-            <button class="btn-reset" onclick="exportDatabase()">📥 Экспорт базы</button>
-            <button class="btn-reset" onclick="document.getElementById('import-file').click()">📤 Импорт базы</button>
+            <button class="btn-reset" style="padding: 8px 12px; font-size: 12px;" onclick="exportDatabase()">📥 Экспорт базы</button>
+            <button class="btn-reset" style="padding: 8px 12px; font-size: 12px;" onclick="document.getElementById('import-file').click()">📤 Импорт базы</button>
             <input type="file" id="import-file" style="display: none;" onchange="importDatabase(this)">
-            <button class="btn-reset" id="theme-btn" onclick="cycleTheme()">🎨 Тема</button>
+            <button class="btn-reset" style="padding: 8px 12px; font-size: 12px;" id="theme-btn" onclick="cycleTheme()">🎨 Тема</button>
         </div>
         <h1>ЕГЭ <span>2026</span></h1>
         <div class="task-grid">
@@ -75,18 +80,18 @@
     <div class="container" id="quiz-screen">
         <div class="quiz-header">
             <button onclick="goBack()" style="background:none; border:none; color:var(--accent); cursor:pointer; font-size: 16px;">← Меню</button>
-            <button class="btn-reset" id="add-word-nav-btn" onclick="openAddScreen()" style="background-color: var(--border);">➕ Добавить слово</button>
-            <div class="stats">Мастерство: <span id="mastery-lvl">0</span>/5</div>
+            <button class="btn-reset" style="padding: 8px 12px; font-size: 12px; background-color: var(--border);" onclick="openAddScreen()">➕ Добавить слово</button>
+            <div class="stats">
+                <span>Мастерство: <span id="mastery-lvl">0</span>/5</span>
+                <button class="btn-reset" id="reset-progress-btn" onclick="resetProgress()">🔄 сбросить</button>
+            </div>
         </div>
         
         <div class="question-text" id="q-text"></div>
         <div id="options"></div>
         <div id="feedback" style="display:none; text-align:center;"></div>
         
-        <div style="display: flex; justify-content: space-between; margin-top: 40px; align-items: center; gap: 10px;">
-            <button class="btn-danger" id="delete-btn" onclick="deleteCurrentWord()" style="display: none;">🗑️ Удалить это слово</button>
-            <button class="btn-reset" id="reset-progress-btn" onclick="resetProgress()">🔄 Сбросить прогресс</button>
-        </div>
+        <button class="btn-danger" id="delete-btn" onclick="deleteCurrentWord()">🗑️ Удалить слово из базы</button>
     </div>
 
     <div class="container" id="add-screen">
@@ -162,9 +167,9 @@
             document.getElementById('main-menu').style.display = 'none';
             document.getElementById('quiz-screen').style.display = 'block';
             
-            // Скрываем или показываем контекстные кнопки управления
+            // Жестко привязываем видимость кнопки сброса к ID текущего задания при входе в квиз
             if (currentTaskId === 'GLOBAL_MIX') {
-                document.getElementById('reset-progress-btn').style.display = 'none'; // Нельзя сбросить всё одной кнопкой случайно
+                document.getElementById('reset-progress-btn').style.display = 'none'; 
             } else {
                 document.getElementById('reset-progress-btn').style.display = 'inline-block';
             }
@@ -172,14 +177,13 @@
             showRandomQuestion();
         }
 
-        // Собираем общий пул слов для глобальной нарешки
         function getGlobalPool() {
             let allWords = [];
             Object.keys(errorDatabase).forEach(taskId => {
                 errorDatabase[taskId].forEach(word => {
-                    // Чтобы при удалении мы знали, из какой категории удалять, допишем скрытое свойство originTask
-                    word.originTask = taskId; 
-                    allWords.push(word);
+                    let clone = Object.assign({}, word);
+                    clone.originTask = taskId; 
+                    allWords.push(clone);
                 });
             });
             return allWords;
@@ -217,7 +221,9 @@
             
             document.getElementById('mastery-lvl').innerText = (masteryData[currentQ.id] || 0);
             document.getElementById('q-text').innerText = currentQ.display;
-            document.getElementById('delete-btn').style.display = 'inline-block';
+            
+            // Показываем кнопку удаления — теперь она не зависит от кнопки сброса прогресса
+            document.getElementById('delete-btn').style.display = 'block'; 
             
             currentQ.buttons.forEach(b => {
                 const btn = document.createElement('button');
@@ -255,7 +261,6 @@
         function deleteCurrentWord() {
             if (!currentQ) return;
             if (confirm("Удалить это слово из вашей базы ошибок навсегда?")) {
-                // Определяем целевое задание для удаления карточки
                 let targetTask = currentTaskId === 'GLOBAL_MIX' ? currentQ.originTask : currentTaskId;
                 
                 let list = errorDatabase[targetTask] || [];
@@ -274,9 +279,11 @@
             if (currentTaskId === 'GLOBAL_MIX') return;
             if (confirm("Сбросить прогресс изучения (мастерство) для всех ошибок этого задания?")) {
                 let list = errorDatabase[currentTaskId] || [];
-                list.forEach(q => { masteryData[q.id] = 0; });
+                list.forEach(q => { 
+                    masteryData[q.id] = 0; 
+                });
                 localStorage.setItem('ege_mastery', JSON.stringify(masteryData));
-                showRandomQuestion();
+                showRandomQuestion(); 
             }
         }
 
@@ -284,7 +291,6 @@
             document.getElementById('quiz-screen').style.display = 'none';
             document.getElementById('add-screen').style.display = 'block';
             
-            // Если мы зашли добавлять слово из глобального микса, показываем выпадающий список заданий
             if (currentTaskId === 'GLOBAL_MIX') {
                 document.getElementById('task-select-group').style.display = 'block';
             } else {
@@ -336,7 +342,6 @@
                 tip: tip || "Правило не указано."
             };
 
-            // Определяем, куда именно сохранять слово
             let targetTask = currentTaskId === 'GLOBAL_MIX' ? document.getElementById('form-task-id').value : currentTaskId;
 
             if (!errorDatabase[targetTask]) {
