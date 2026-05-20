@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ЕГЭ Мастер-тренажер 2026</title>
+    <style>
+        /* Глобальные переменные по умолчанию */
+        :root {
+            --bg-dark: #080b12;
+            --accent: #ff4d4d;
+            --text-main: #e8e8e8;
+            --card-bg: #151921;
+            --border: rgba(64, 128, 255, 0.3);
+        }
+
+        /* Темы */
+        body.theme-0 { --bg-dark: #080b12; --accent: #ff4d4d; --text-main: #e8e8e8; --card-bg: #151921; --border: rgba(64, 128, 255, 0.3); } 
+        body.theme-1 { --bg-dark: #0a0a0a; --accent: #39ff14; --text-main: #ffffff; --card-bg: #1a1a1a; --border: rgba(57, 255, 20, 0.2); } 
+        body.theme-2 { --bg-dark: #001f3f; --accent: #7FDBFF; --text-main: #e0f7fa; --card-bg: #002e5c; --border: #0074D9; } 
+        body.theme-3 { --bg-dark: #1e102e; --accent: #ffcc00; --text-main: #fff; --card-bg: #2a1540; --border: #9b59b6; } 
+        body.theme-4 { --bg-dark: #ffffff; --accent: #000000; --text-main: #333333; --card-bg: #f0f0f0; --border: #cccccc; } 
+        body.theme-5 { --bg-dark: #2b1810; --accent: #ff8c00; --text-main: #f5deb3; --card-bg: #3d2216; --border: #8b4513; } 
+        body.theme-6 { --bg-dark: #0f1a0f; --accent: #76c893; --text-main: #e0ffe0; --card-bg: #1e2e1e; --border: #2d5a27; } 
+        body.theme-7 { --bg-dark: #050505; --accent: #00ffaa; --text-main: #e0e0e0; --card-bg: #111111; --border: #333333; }
+        /* Новые простые темы */
+        body.theme-8 { --bg-dark: #f4f4f4; --accent: #333333; --text-main: #333333; --card-bg: #ffffff; --border: #dddddd; }
+        body.theme-9 { --bg-dark: #e3f2fd; --accent: #1976d2; --text-main: #1565c0; --card-bg: #ffffff; --border: #bbdefb; }
+        body.theme-10 { --bg-dark: #fff3e0; --accent: #e65100; --text-main: #5d4037; --card-bg: #ffffff; --border: #ffe0b2; }
+        body.theme-11 { --bg-dark: #f3e5f5; --accent: #7b1fa2; --text-main: #4a148c; --card-bg: #ffffff; --border: #e1bee7; }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            background-color: var(--bg-dark); 
+            color: var(--text-main); 
+            font-family: 'Segoe UI', sans-serif; 
+            padding: 40px 20px; 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: flex-start; 
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .container { width: 100%; max-width: 1000px; }
+        .header-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        
+        .theme-btn { 
+            background: var(--card-bg); 
+            color: var(--text-main); 
+            border: 2px solid var(--border); 
+            padding: 12px 24px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            transition: 0.3s; 
+        }
+        .theme-btn:hover { border-color: var(--accent); background: var(--border); }
+        
+        h1 { text-align: center; margin-bottom: 60px; font-size: 56px; }
+        h1 span { color: var(--accent); }
+        
+        .task-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+        .task-card { background: var(--card-bg); border: 2px solid var(--border); border-radius: 20px; padding: 30px; cursor: pointer; transition: 0.3s; text-align: center; }
+        .task-card:hover { border-color: var(--accent); transform: translateY(-5px); }
+        .task-card h3 { color: var(--accent); margin-bottom: 10px; font-size: 24px; }
+        .task-card p { font-size: 16px; color: #aaa; }
+        
+        #quiz-screen { display: none; background: var(--card-bg); padding: 60px; border-radius: 30px; border: 1px solid var(--border); }
+        .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 50px; }
+        .stats { font-size: 22px; font-weight: bold; }
+        .stat-val { color: var(--accent); font-size: 28px; }
+        
+        .question-text { font-size: 36px; margin-bottom: 50px; font-weight: bold; line-height: 1.5; text-align: center; }
+        #options { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .option-btn { background: transparent; border: 2px solid var(--border); color: var(--text-main); padding: 25px; border-radius: 15px; font-size: 22px; cursor: pointer; transition: 0.2s; }
+        .option-btn:hover { background: var(--border); border-color: var(--accent); }
+        
+        .feedback { margin-top: 40px; padding: 30px; border-radius: 15px; background: rgba(0,0,0,0.05); display: none; font-size: 20px; text-align: center; line-height: 1.6; }
+        .btn-next { background: var(--accent); color: #000; border: none; padding: 15px 40px; border-radius: 12px; cursor: pointer; margin-top: 25px; font-weight: bold; font-size: 18px; }
+        .btn-reset { background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border); padding: 12px 20px; border-radius: 8px; cursor: pointer; margin-left: 20px; font-size: 16px; }
+    </style>
+</head>
+<body class="theme-0">
+
+    <div class="container" id="main-menu">
+        <div class="header-controls">
+            <button class="theme-btn" id="theme-btn" onclick="cycleTheme()">🎨 Тема: Загрузка...</button>
+        </div>
+        
+        <h1>ЕГЭ <span>2026</span></h1>
+        <div class="task-grid">
+            <div class="task-card" onclick="startQuiz(['N5.json'])"><h3>Задание 5</h3><p>Паронимы</p></div>
+            <div class="task-card" onclick="startQuiz(['N7.json'])"><h3>Задание 7</h3><p>Грамматические нормы</p></div>
+            <div class="task-card" onclick="startQuiz(['N8.json'])"><h3>Задание 8</h3><p>Грамматические ошибки</p></div>
+            <div class="task-card" onclick="startQuiz(['N9.json'])"><h3>Задание 9</h3><p>Корни</p></div>
+            <div class="task-card" onclick="startQuiz(['N10.json'])"><h3>Задание 10</h3><p>Приставки</p></div>
+            <div class="task-card" onclick="startQuiz(['N11.json'])"><h3>Задание 11</h3><p>Суффиксы</p></div>
+            <div class="task-card" onclick="startQuiz(['N12.json'])"><h3>Задание 12</h3><p>Глаголы</p></div>
+            <div class="task-card" onclick="startQuiz(['N13.json'])"><h3>Задание 13</h3><p>НЕ и НИ</p></div>
+            <div class="task-card" onclick="startQuiz(['N14.json'])"><h3>Задание 14</h3><p>Слитно, раздельно, дефис</p></div>
+            <div class="task-card" onclick="startQuiz(['N15.json'])"><h3>Задание 15</h3><p>Н и НН</p></div>
+        </div>
+    </div>
+
+    <div class="container" id="quiz-screen">
+        <div class="quiz-header">
+            <div>
+                <button onclick="location.reload()" style="background:none; border:none; color:var(--accent); cursor:pointer; font-size: 18px;">← В меню</button>
+                <button class="btn-reset" onclick="resetProgress()">Сброс</button>
+            </div>
+            <div class="stats">
+                Мастерство: <span id="mastery" class="stat-val">0</span>/4 | 
+                Серия: <span id="streak" class="stat-val">0</span>
+            </div>
+        </div>
+        
+        <div id="quiz-container">
+            <div class="question-text" id="q-text"></div>
+            <div id="options"></div>
+            <div class="feedback" id="feedback"></div>
+        </div>
+    </div>
+
+    <script>
+        const themes = [
+            { id: 'theme-0', name: 'Классика' },
+            { id: 'theme-1', name: 'Неон' },
+            { id: 'theme-2', name: 'Океан' },
+            { id: 'theme-3', name: 'Королевская' },
+            { id: 'theme-4', name: 'Минимализм' },
+            { id: 'theme-5', name: 'Закат' },
+            { id: 'theme-6', name: 'Лес' },
+            { id: 'theme-7', name: 'Матрица' },
+            { id: 'theme-8', name: 'Серый' },
+            { id: 'theme-9', name: 'Небесный' },
+            { id: 'theme-10', name: 'Песочный' },
+            { id: 'theme-11', name: 'Лавандовый' }
+        ];
+
+        let currentThemeIndex = parseInt(localStorage.getItem('themeIndex')) || 0;
+
+        function applyTheme() {
+            document.body.className = themes[currentThemeIndex].id;
+            document.getElementById('theme-btn').innerText = '🎨 Тема: ' + themes[currentThemeIndex].name;
+            localStorage.setItem('themeIndex', currentThemeIndex);
+        }
+
+        function cycleTheme() {
+            currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+            applyTheme();
+        }
+
+        applyTheme();
+
+        // --- Логика тестов ---
+        let questions = [];
+        let currentQ = null;
+        let globalStreak = 0;
+        let history = []; 
+
+        async function startQuiz(files) {
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'block';
+            questions = []; globalStreak = 0; history = []; 
+            let counter = 0;
+            for (let f of files) {
+                try {
+                    const res = await fetch(`WordBase/${f}`);
+                    const data = await res.json();
+                    data.forEach(q => { q.mastery = 0; q.uniqueId = counter++; });
+                    questions = questions.concat(data);
+                } catch(e) { alert("Ошибка загрузки файла " + f + ". Проверьте локальный сервер."); return; }
+            }
+            showRandomQuestion();
+        }
+
+        function resetProgress() {
+            if(confirm("Сбросить весь прогресс?")) {
+                questions.forEach(q => q.mastery = 0);
+                globalStreak = 0; history = [];
+                document.getElementById('streak').innerText = 0;
+                showRandomQuestion();
+            }
+        }
+
+        function showRandomQuestion() {
+            let pool = questions.filter(q => !history.includes(q.uniqueId));
+            if (pool.length === 0) { history = []; pool = questions; }
+            currentQ = pool[Math.floor(Math.random() * pool.length)];
+            history.push(currentQ.uniqueId);
+            if (history.length > 4) history.shift();
+            
+            document.getElementById('mastery').innerText = currentQ.mastery;
+            document.getElementById('streak').innerText = globalStreak;
+            document.getElementById('q-text').innerText = currentQ.display;
+            document.getElementById('feedback').style.display = 'none';
+            
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = "";
+            currentQ.buttons.forEach(b => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = b;
+                btn.onclick = () => check(b);
+                optionsDiv.appendChild(btn);
+            });
+        }
+
+        function check(sel) {
+            const fb = document.getElementById('feedback');
+            const isCorrect = (sel === currentQ.correct);
+            if (isCorrect) { globalStreak++; currentQ.mastery = Math.min(4, currentQ.mastery + 1); } 
+            else { globalStreak = 0; currentQ.mastery = 0; }
+            
+            document.getElementById('streak').innerText = globalStreak;
+            document.getElementById('mastery').innerText = currentQ.mastery;
+            fb.style.display = 'block';
+            fb.innerHTML = `<b>${isCorrect ? '✅ Верно!' : '❌ Ошибка!'}</b><br>${currentQ.tip}<br><button class="btn-next" onclick="showRandomQuestion()">Далее</button>`;
+            document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+        }
+    </script>
+</body>
+</html>
