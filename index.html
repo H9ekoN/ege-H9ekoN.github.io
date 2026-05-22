@@ -35,7 +35,6 @@
         .btn-reset { background: #333; color: #ccc; border: 1px solid var(--border); padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 11px; margin-left: 6px; display: inline-block; vertical-align: middle; }
         .btn-reset:hover { background: #444; color: #fff; }
         
-        /* Стили для маленькой центрированной кнопки удаления */
         .btn-danger { background: #8b0000; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; margin: 30px auto 0 auto; display: none; transition: 0.2s; text-align: center; }
         .btn-danger:active { background: #ff0000; }
         
@@ -154,6 +153,10 @@
         let currentQ = null;
         const MAX_MASTERY = 5; 
         
+        // Буфер для исключения близких повторов
+        let recentQuestions = [];
+        const BUFFER_SIZE = 3; 
+        
         let errorDatabase = JSON.parse(localStorage.getItem('ege_error_db')) || {};
         let masteryData = JSON.parse(localStorage.getItem('ege_mastery')) || {};
 
@@ -164,15 +167,10 @@
 
         function startQuiz(taskId) {
             currentTaskId = taskId;
+            recentQuestions = []; 
             document.getElementById('main-menu').style.display = 'none';
             document.getElementById('quiz-screen').style.display = 'block';
-            
-            // Жестко привязываем видимость кнопки сброса к ID текущего задания при входе в квиз
-            if (currentTaskId === 'GLOBAL_MIX') {
-                document.getElementById('reset-progress-btn').style.display = 'none'; 
-            } else {
-                document.getElementById('reset-progress-btn').style.display = 'inline-block';
-            }
+            document.getElementById('reset-progress-btn').style.display = 'inline-block';
             
             showRandomQuestion();
         }
@@ -217,12 +215,24 @@
                 return;
             }
 
-            currentQ = pool[Math.floor(Math.random() * pool.length)];
+            // Исключаем из выборки ID последних 3-х карточек
+            let filteredPool = pool.filter(q => !recentQuestions.includes(q.id));
+            
+            // Защита: если доступных слов меньше, чем размер буфера + 1, игнорируем историю
+            if (filteredPool.length === 0) {
+                filteredPool = pool;
+            }
+
+            currentQ = filteredPool[Math.floor(Math.random() * filteredPool.length)];
+            
+            // Пушим текущий ID в историю и контролируем размер буфера
+            recentQuestions.push(currentQ.id);
+            if (recentQuestions.length > BUFFER_SIZE) {
+                recentQuestions.shift();
+            }
             
             document.getElementById('mastery-lvl').innerText = (masteryData[currentQ.id] || 0);
             document.getElementById('q-text').innerText = currentQ.display;
-            
-            // Показываем кнопку удаления — теперь она не зависит от кнопки сброса прогресса
             document.getElementById('delete-btn').style.display = 'block'; 
             
             currentQ.buttons.forEach(b => {
@@ -270,20 +280,35 @@
                 localStorage.setItem('ege_error_db', JSON.stringify(errorDatabase));
                 localStorage.setItem('ege_mastery', JSON.stringify(masteryData));
                 
+                recentQuestions = recentQuestions.filter(id => id !== currentQ.id);
+                
                 currentQ = null;
                 showRandomQuestion();
             }
         }
 
         function resetProgress() {
-            if (currentTaskId === 'GLOBAL_MIX') return;
-            if (confirm("Сбросить прогресс изучения (мастерство) для всех ошибок этого задания?")) {
-                let list = errorDatabase[currentTaskId] || [];
-                list.forEach(q => { 
-                    masteryData[q.id] = 0; 
-                });
-                localStorage.setItem('ege_mastery', JSON.stringify(masteryData));
-                showRandomQuestion(); 
+            if (currentTaskId === 'GLOBAL_MIX') {
+                if (confirm("Вы уверены, что хотите полностью обнулить прогресс мастерства для ВСЕХ слов во ВСЕЙ базе данных?")) {
+                    Object.keys(errorDatabase).forEach(taskId => {
+                        errorDatabase[taskId].forEach(q => {
+                            masteryData[q.id] = 0;
+                        });
+                    });
+                    localStorage.setItem('ege_mastery', JSON.stringify(masteryData));
+                    recentQuestions = [];
+                    showRandomQuestion();
+                }
+            } else {
+                if (confirm("Сбросить прогресс изучения (мастерство) для всех ошибок этого задания?")) {
+                    let list = errorDatabase[currentTaskId] || [];
+                    list.forEach(q => { 
+                        masteryData[q.id] = 0; 
+                    });
+                    localStorage.setItem('ege_mastery', JSON.stringify(masteryData));
+                    recentQuestions = [];
+                    showRandomQuestion(); 
+                }
             }
         }
 
